@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/src/generated/prisma
+
+# Coursework files (private)
+COURSEWORK.MD
+COURSEWORK_REPORT.md
