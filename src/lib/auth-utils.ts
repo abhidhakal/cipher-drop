@@ -3,13 +3,6 @@ import { z } from "zod";
 
 // Password policy regex: At least 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 symbol
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
-// Mismatches often happen due to special chars. Let's make sure the client validation matches.
-// Actually, the user's password 'SecurePass123!' should pass:
-// 8+ chars: Yes (14)
-// Uppercase: Yes (S, P)
-// Lowercase: Yes (e, c, u, r, e, a, s, s)
-// Number: Yes (1, 2, 3)
-// Special: Yes (!) - Wait, is ! inside [@$!%*?&]? Yes.
 
 export const RegisterSchema = z.object({
   email: z.string().email("Invalid email address"),
