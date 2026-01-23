@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String    @id @default(uuid())
+  email           String    @unique
+  passwordHash    String
+  name            String?
+  role            String    @default("USER") // USER, ADMIN
+  balance         Float     @default(0) // Internal Ledger System
+  
+  // Security Fields
+  mfaSecret       String?   // For TOTP
+  mfaEnabled      Boolean   @default(false)
+  failedLoginAttempts Int   @default(0)
+  lockedUntil     DateTime? 
+  passwordLastChanged DateTime @default(now())
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  filesSent       FileDrop[] @relation("Sender")
+  filesReceived   FileDrop[] @relation("Receiver")
+  auditLogs       AuditLog[]
+  passwordHistory PasswordHistory[]
+}
+
+model PasswordHistory {
+  id           String   @id @default(uuid())
+  passwordHash String
+  createdAt    DateTime @default(now())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+}
+
+model FileDrop {
+  id              String    @id @default(uuid())
+  title           String
+  description     String?
+  encryptedLink   String    // The actual file link/blob (encrypted)
+  encryptionKey   String?   // Store encrypted version of the key? Or handled client side.
+  
+  status          String    @default("PENDING") // PENDING, PAID, COMPLETED, EXPIRED
+  price           Float     @default(0.0)
+  
+  senderId        String
+  sender          User      @relation("Sender", fields: [senderId], references: [id])
+  
+  receiverEmail   String?   // If sending to a specific person
+  receiverId      String?
+  receiver        User?     @relation("Receiver", fields: [receiverId], references: [id])
+
+  createdAt       DateTime  @default(now())
+  expiresAt       DateTime?
+  oneTimeView     Boolean   @default(false)
+}
+
+model AuditLog {
+  id              String    @id @default(uuid())
+  action          String    // LOGIN, VIEW_FILE, FAILED_LOGIN, ADMIN_ACTION
+  metadata        String?   // JSON string of details (IP, UserAgent, etc)
+  
+  userId          String?
+  user            User?     @relation(fields: [userId], references: [id])
+  
+  ipAddress       String?
+  createdAt       DateTime  @default(now())
+}
