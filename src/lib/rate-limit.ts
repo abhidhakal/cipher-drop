@@ -1,6 +1,3 @@
-// Simple In-Memory Rate Limiter for Demo Purposes
-// In production, use Redis or a similar store.
-
 const cache = new Map<string, { count: number; expires: number }>();
 
 export function checkRateLimit(ip: string, limit: number = 20, windowMs: number = 60000) {
