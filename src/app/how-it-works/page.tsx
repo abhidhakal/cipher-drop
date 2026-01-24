@@ -29,13 +29,13 @@ export default function HowItWorksPage() {
             number="03"
             title="Secure Key Exchange"
             description="When you create a drop, a unique initialization vector (IV) and authentication tag are generated. These are required to decrypt the payload, ensuring that even if the database is compromised, the data remains secure without the keys."
-            icon={<Key className="text-emerald-500" size={32} />}
+            icon={<Key className="text-primary" size={32} />}
           />
           <Step
             number="04"
             title="Audit Trails"
             description="Every action—login, file creation, decryption, and profile update—is immutable logged. This provides a complete forensic trail for security audits."
-            icon={<EyeOff className="text-purple-500" size={32} />}
+            icon={<EyeOff className="text-secondary" size={32} />}
           />
         </div>
 

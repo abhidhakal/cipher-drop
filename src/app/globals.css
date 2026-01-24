@@ -14,10 +14,10 @@
   --popover: hsl(222 47% 11%);
   --popover-foreground: hsl(210 40% 98%);
 
-  --primary: hsl(262 83% 58%);
+  --primary: hsl(221 83% 53%);
   --primary-foreground: hsl(210 40% 98%);
 
-  --secondary: hsl(199 89% 48%);
+  --secondary: hsl(210 40% 96%);
   --secondary-foreground: hsl(222 47% 11%);
 
   --muted: hsl(217 33% 17%);
@@ -67,6 +67,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground antialiased;
   }

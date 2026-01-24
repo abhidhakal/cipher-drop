@@ -13,6 +13,7 @@ export default function Home() {
       <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-primary/20 opacity-20 blur-[100px]"></div>
       <div className="absolute right-0 bottom-0 -z-10 h-[310px] w-[310px] rounded-full bg-secondary/20 opacity-20 blur-[100px]"></div>
 
+
       {/* Navbar Placeholder */}
       <Header />
 
@@ -36,7 +37,7 @@ export default function Home() {
           className="text-5xl md:text-7xl font-bold tracking-tight mb-6 max-w-4xl"
         >
           The Secure Escrow for <br />
-          <span className="text-transparent bg-clip-text bg-linear-to-r from-primary via-purple-400 to-secondary">
+          <span className="text-primary">
             Digital Assets
           </span>
         </motion.h1>
@@ -59,7 +60,7 @@ export default function Home() {
         >
           <Link
             href="/register"
-            className="group px-8 py-3 bg-primary text-white rounded-full font-semibold text-lg hover:bg-primary/90 transition-all shadow-[0_0_30px_-5px_var(--color-primary)] flex items-center gap-2"
+            className="group px-8 py-3 bg-primary text-white rounded-full font-semibold text-lg hover:bg-primary/90 transition-all flex items-center gap-2"
           >
             Start Secure Transfer
             <ArrowRight className="group-hover:translate-x-1 transition-transform" />

@@ -4,7 +4,7 @@ export function Header() {
   return (
     <nav className="w-full border-b border-white/5 bg-background m-0 p-0 relative z-20">
       <div className="max-w-6xl mx-auto px-6 h-20 flex justify-between items-center">
-        <Link href="/" className="font-bold text-xl flex items-center gap-2">
+        <Link href="/" className="font-bold text-xl flex items-center gap-2 text-foreground">
           CipherDrop
         </Link>
         <div className="flex gap-4">
