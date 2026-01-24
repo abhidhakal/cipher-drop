@@ -3,37 +3,18 @@
 import { motion } from "framer-motion";
 import { ShieldCheck, Lock, CreditCard, ArrowRight, EyeOff } from "lucide-react";
 import Link from "next/link";
+import { Header } from "@/components/Header";
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center overflow-hidden bg-background relative">
+    <div className="min-h-screen flex flex-col items-center overflow-hidden bg-background relative">
       {/* Background Grids/Glows */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-size-[24px_24px]"></div>
       <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-primary/20 opacity-20 blur-[100px]"></div>
       <div className="absolute right-0 bottom-0 -z-10 h-[310px] w-[310px] rounded-full bg-secondary/20 opacity-20 blur-[100px]"></div>
 
       {/* Navbar Placeholder */}
-      <nav className="fixed top-0 w-full z-50 border-b border-white/10 bg-background/50 backdrop-blur-md">
-        <div className="container mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="CipherDrop Logo" className="w-10 h-10 object-contain invert" />
-            <span className="font-bold text-2xl tracking-tighter text-transparent bg-clip-text bg-linear-to-r from-primary to-secondary">
-              CipherDrop
-            </span>
-          </div>
-          <div className="flex gap-4">
-            <Link href="/login" className="px-4 py-2 text-sm font-medium hover:text-primary transition-colors">
-              Login
-            </Link>
-            <Link
-              href="/register"
-              className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-all shadow-[0_0_20px_-5px_var(--color-primary)]"
-            >
-              Get Started
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Header />
 
       {/* Hero Section */}
       <main className="container mx-auto px-6 pt-32 pb-16 flex flex-col items-center text-center z-10">

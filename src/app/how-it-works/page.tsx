@@ -1,19 +1,13 @@
 import Link from "next/link";
 import { Shield, Lock, Key, EyeOff } from "lucide-react";
+import { Header } from "@/components/Header";
 
 export default function HowItWorksPage() {
   return (
-    <div className="min-h-screen bg-background p-6 flex flex-col items-center">
-      <nav className="w-full max-w-6xl flex justify-between items-center mb-16">
-        <Link href="/" className="font-bold text-xl flex items-center gap-2">
-          <Shield className="text-primary" /> CipherDrop
-        </Link>
-        <Link href="/register" className="px-4 py-2 bg-primary text-white rounded-full text-sm font-semibold">
-          Get Started
-        </Link>
-      </nav>
+    <div className="min-h-screen bg-background flex flex-col items-center">
+      <Header />
 
-      <div className="max-w-4xl w-full">
+      <div className="max-w-4xl w-full p-6 mt-16">
         <h1 className="text-4xl md:text-6xl font-bold text-center mb-16">
           Security by Design
         </h1>

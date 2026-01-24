@@ -76,7 +76,7 @@ export default async function AdminDashboard() {
               <div className="space-y-3 overflow-hidden">
                 {logs.map((log: any) => (
                   <div key={log.id} className="flex items-start gap-4 p-3 bg-background/30 rounded-lg border border-white/5 text-xs">
-                    <div className={`mt-1 w-2 h-2 rounded-full flex-shrink-0 ${log.action.includes("FAILED") ? "bg-red-500 shadow-[0_0_8px_red]" : "bg-emerald-500"
+                    <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${log.action.includes("FAILED") ? "bg-red-500 shadow-[0_0_8px_red]" : "bg-emerald-500"
                       }`} />
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start mb-1">
