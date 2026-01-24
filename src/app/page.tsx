@@ -49,7 +49,7 @@ export default function Home() {
           className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-10"
         >
           Exchange sensitive files, code, and credentials with verified payments.
-          Zero-knowledge encryption ensures only you and the recipient can see the data.
+          Zero knowledge encryption ensures only you and the recipient can see the data.
         </motion.p>
 
         <motion.div

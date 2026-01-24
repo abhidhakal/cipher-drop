@@ -67,12 +67,9 @@ export default function LoginPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md bg-card border border-white/10 p-8 rounded-2xl shadow-2xl relative z-10"
+        className="w-full max-w-lg bg-card border border-white/10 p-8 rounded-2xl shadow-2xl relative z-10"
       >
         <div className="text-center mb-8">
-          <div className="inline-block mb-4 p-3 bg-primary/10 rounded-xl text-primary">
-            <Lock size={32} />
-          </div>
           <h1 className="text-2xl font-bold">{mfaRequired ? "Verification Required" : "Welcome Back"}</h1>
           <p className="text-muted-foreground mt-2">
             {mfaRequired ? "Enter your 2FA security code" : "Access your encrypted vault"}

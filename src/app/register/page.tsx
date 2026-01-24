@@ -5,7 +5,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "lucide-react"; // Wait, "Link" is a component name conflict.
 import NextLink from "next/link";
-import { Eye, EyeOff, ShieldCheck, CheckCircle2, XCircle } from "lucide-react";
+import { Eye, EyeOff, CheckCircle2, XCircle, Mail, Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
@@ -71,12 +71,9 @@ export default function RegisterPage() {
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-md bg-card border border-white/10 p-8 rounded-2xl shadow-2xl relative z-10"
+        className="w-full max-w-lg bg-card border border-white/10 p-8 rounded-2xl shadow-2xl relative z-10"
       >
         <div className="text-center mb-8">
-          <NextLink href="/" className="inline-block mb-4 p-3 bg-primary/10 rounded-xl text-primary">
-            <ShieldCheck size={32} />
-          </NextLink>
           <h1 className="text-2xl font-bold">Create Secure Account</h1>
           <p className="text-muted-foreground mt-2">Join the encrypted network</p>
         </div>
@@ -91,14 +88,17 @@ export default function RegisterPage() {
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block text-sm font-medium mb-1.5">Email Address</label>
-            <input
-              type="email"
-              required
-              className="w-full bg-background border border-border rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
-              placeholder="you@example.com"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            />
+            <div className="relative">
+              <input
+                type="email"
+                required
+                className="w-full bg-background border border-border rounded-lg pl-10 pr-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
+                placeholder="you@example.com"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+            </div>
           </div>
 
           <div>
@@ -107,11 +107,12 @@ export default function RegisterPage() {
               <input
                 type={showPassword ? "text" : "password"}
                 required
-                className="w-full bg-background border border-border rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all pr-10"
+                className="w-full bg-background border border-border rounded-lg pl-10 pr-10 py-3 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
                 placeholder="••••••••"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               />
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
@@ -151,20 +152,23 @@ export default function RegisterPage() {
 
           <div>
             <label className="block text-sm font-medium mb-1.5">Confirm Password</label>
-            <input
-              type="password"
-              required
-              className="w-full bg-background border border-border rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
-              placeholder="••••••••"
-              value={formData.confirmPassword}
-              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-            />
+            <div className="relative">
+              <input
+                type="password"
+                required
+                className="w-full bg-background border border-border rounded-lg pl-10 pr-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
+                placeholder="••••••••"
+                value={formData.confirmPassword}
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+              />
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+            </div>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-lg transition-all shadow-[0_0_20px_-5px_var(--color-primary)] disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+            className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-lg transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed mt-2"
           >
             {loading ? "Creating Account..." : "Create Account"}
           </button>
