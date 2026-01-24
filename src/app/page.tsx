@@ -82,18 +82,18 @@ export default function Home() {
         >
           <FeatureCard
             icon={<Lock className="w-8 h-8 text-primary" />}
-            title="1. Encrypt & Upload"
-            description="Drag and drop your file. We encrypt it locally, so not even we can see what's inside."
+            title="End-to-End Encryption"
+            description="Files are encrypted locally before upload. We never see your unencrypted data."
           />
           <FeatureCard
             icon={<CreditCard className="w-8 h-8 text-secondary" />}
-            title="2. Secure Payment Link"
-            description="Set your price and share the link. The buyer pays to unlock the file automatically."
+            title="Escrow Payments"
+            description="Funds are held safely until the recipient decrypts and verifies the files."
           />
           <FeatureCard
-            icon={<EyeOff className="w-8 h-8 text-primary" />}
-            title="3. Get Paid Instantly"
-            description="Funds are released to you immediately upon successful decryption. No chargebacks."
+            icon={<EyeOff className="w-8 h-8 text-emerald-400" />}
+            title="Anonymity First"
+            description="No tracking, no logs. Operate with complete privacy and peace of mind."
           />
         </motion.div>
       </main>
