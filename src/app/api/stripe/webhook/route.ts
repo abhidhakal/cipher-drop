@@ -26,6 +26,8 @@ export async function POST(req: Request) {
     const userId = session.metadata?.userId;
     const amountTotal = session.amount_total; // in cents
 
+    console.log(`[Webhook] Processing checkout session. UserId: ${userId}, Amount: ${amountTotal}`);
+
     if (userId && amountTotal) {
       const amountDollars = amountTotal / 100;
 
@@ -37,6 +39,7 @@ export async function POST(req: Request) {
               balance: { increment: amountDollars }
             }
           });
+          console.log(`[Webhook] User balance updated. New Balance: ${user.balance}`);
 
           await tx.auditLog.create({
             data: {
@@ -51,11 +54,13 @@ export async function POST(req: Request) {
             }
           });
         });
-        console.log(`User ${userId} topped up $${amountDollars}`);
+        console.log(`[Webhook] Transaction successful for user ${userId}`);
       } catch (error) {
-        console.error('Error updating user balance:', error);
+        console.error('[Webhook] Error updating user balance:', error);
         return NextResponse.json({ error: 'Database update failed' }, { status: 500 });
       }
+    } else {
+      console.log('[Webhook] Missing userId or amountTotal in session metadata');
     }
   }
 
