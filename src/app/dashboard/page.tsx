@@ -32,10 +32,7 @@ export default async function Dashboard() {
       {/* Navbar */}
       <header className="border-b border-white/5 bg-card/30 backdrop-blur-xl sticky top-0 z-50">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3 font-black text-2xl tracking-tighter">
-            <div className="w-10 h-10 bg-black border border-white/10 rounded-xl flex items-center justify-center shadow-xl overflow-hidden">
-              <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
-            </div>
+          <div className="flex items-center gap-3 font-extrabold text-2xl tracking-tighter">
             <span>CipherDrop</span>
           </div>
 

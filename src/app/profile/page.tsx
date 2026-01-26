@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { User, Shield, Key, Save, Lock, CheckCircle2, AlertCircle, Wallet, Plus } from "lucide-react";
+import { User, Shield, Key, Save, Lock, CheckCircle2, AlertCircle, Wallet, Plus, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -105,11 +105,14 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-4xl mx-auto">
-        <div className="flex items-center gap-3 mb-8">
-          <Link href="/dashboard" className="p-2 bg-card rounded-lg hover:bg-white/5 transition-colors">
-            <Shield size={20} className="text-primary" />
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold tracking-tight">Security Command Center</h1>
+          </div>
+          <Link href="/dashboard" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+            <ArrowLeft size={16} />
+            Back to Dashboard
           </Link>
-          <h1 className="text-2xl font-bold tracking-tight">Security Command Center</h1>
         </div>
 
         {/* Ledger Balance Card */}
