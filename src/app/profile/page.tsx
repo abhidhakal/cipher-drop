@@ -32,12 +32,22 @@ export default function ProfilePage() {
   const handleTopup = async () => {
     setAddingFunds(true);
     try {
-      const res = await fetch("/api/profile/topup", {
+      const res = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount: 50.00 }) // Flat $50 for demo
       });
-      if (res.ok) await fetchProfile();
+
+      const data = await res.json();
+
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert("Failed to start payment: " + (data.error || "Unknown error"));
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Payment initiation failed");
     } finally {
       setAddingFunds(false);
     }
@@ -120,7 +130,7 @@ export default function ProfilePage() {
             className="relative z-10 flex items-center gap-2 bg-white text-black px-6 py-3 rounded-xl font-bold hover:bg-white/90 transition-all active:scale-95 disabled:opacity-50"
           >
             <Plus size={18} />
-            {addingFunds ? "Processing..." : "Add $50 Test Credits"}
+            {addingFunds ? "Redirecting..." : "Add $50 via Stripe"}
           </button>
         </div>
 
