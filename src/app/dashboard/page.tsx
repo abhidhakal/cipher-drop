@@ -42,7 +42,7 @@ export default async function Dashboard() {
               <span className="font-bold text-sm text-foreground">${data.user?.balance.toFixed(2)}</span>
             </Link>
 
-            <div className="h-8 w-[1px] bg-white/10 hidden sm:block" />
+            <div className="h-8 w-px bg-white/10 hidden sm:block" />
 
             <div className="flex items-center gap-3">
               <Link href="/profile" className="p-2 hover:bg-white/5 rounded-full transition-colors" title="Settings">
@@ -95,7 +95,7 @@ export default async function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Quick Actions */}
           <div className="lg:col-span-1 space-y-6">
-            <h2 className="text-xl font-bold mb-4 uppercase tracking-widest text-xs opacity-50">Quick Operations</h2>
+            <h2 className="text-xl font-bold mb-4 uppercase tracking-widest opacity-50">Quick Operations</h2>
             <div className="grid grid-cols-1 gap-4">
               <Link href="/transfer/new" className="group p-6 bg-card border border-white/5 rounded-2xl hover:border-primary/50 transition-all shadow-xl">
                 <div className="mb-4 p-3 bg-primary/10 w-fit rounded-xl text-primary group-hover:scale-110 transition-transform">
