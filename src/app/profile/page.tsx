@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { User, Shield, Key, Save, Lock, CheckCircle2, AlertCircle, Wallet, Plus, ArrowLeft } from "lucide-react";
+import { User, Shield, Key, Save, Lock, CheckCircle2, AlertCircle, Wallet, Plus, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -12,6 +12,13 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [addingFunds, setAddingFunds] = useState(false);
+
+  // MFA Setup State
+  const [mfaSetup, setMfaSetup] = useState<{ secret: string; otpauthUri: string } | null>(null);
+  const [mfaCode, setMfaCode] = useState("");
+  const [mfaLoading, setMfaLoading] = useState(false);
+  const [mfaError, setMfaError] = useState("");
+  const [mfaSuccess, setMfaSuccess] = useState("");
 
   // Password Change State
   const [pwData, setPwData] = useState({ currentPassword: "", newPassword: "", confirmNewPassword: "" });
@@ -58,10 +65,89 @@ export default function ProfilePage() {
     await fetch("/api/profile", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(profile)
+      body: JSON.stringify({ name: profile.name }) // Only save name, MFA is handled separately
     });
     setSaving(false);
     router.refresh();
+  };
+
+  // Start MFA Setup - Get secret and QR code
+  const startMfaSetup = async () => {
+    setMfaLoading(true);
+    setMfaError("");
+    setMfaSuccess("");
+    try {
+      const res = await fetch("/api/auth/mfa/setup");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to start MFA setup");
+
+      if (data.mfaEnabled) {
+        setMfaError("MFA is already enabled");
+      } else {
+        setMfaSetup({ secret: data.secret, otpauthUri: data.otpauthUri });
+      }
+    } catch (err: any) {
+      setMfaError(err.message);
+    } finally {
+      setMfaLoading(false);
+    }
+  };
+
+  // Verify code and enable MFA
+  const enableMfa = async () => {
+    if (mfaCode.length !== 6) {
+      setMfaError("Please enter a 6-digit code");
+      return;
+    }
+
+    setMfaLoading(true);
+    setMfaError("");
+    try {
+      const res = await fetch("/api/auth/mfa/setup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: mfaCode })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Invalid code");
+
+      setMfaSuccess("MFA enabled successfully!");
+      setProfile({ ...profile, mfaEnabled: true });
+      setMfaSetup(null);
+      setMfaCode("");
+    } catch (err: any) {
+      setMfaError(err.message);
+    } finally {
+      setMfaLoading(false);
+    }
+  };
+
+  // Disable MFA
+  const disableMfa = async () => {
+    if (mfaCode.length !== 6) {
+      setMfaError("Please enter your current 2FA code to disable");
+      return;
+    }
+
+    setMfaLoading(true);
+    setMfaError("");
+    try {
+      const res = await fetch("/api/auth/mfa/setup", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: mfaCode })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to disable MFA");
+
+      setMfaSuccess("MFA disabled");
+      setProfile({ ...profile, mfaEnabled: false });
+      setMfaCode("");
+    } catch (err: any) {
+      setMfaError(err.message);
+    } finally {
+      setMfaLoading(false);
+    }
   };
 
   const handlePasswordChange = async (e: React.FormEvent) => {
@@ -174,37 +260,137 @@ export default function ProfilePage() {
                   Access Protections
                 </h3>
 
-                <div className="flex items-center justify-between p-4 bg-background/50 rounded-xl border border-white/5">
-                  <div>
-                    <p className="font-bold">Multi-Factor (MFA)</p>
-                    <p className="text-[10px] text-muted-foreground leading-tight">Biometric or App-based second step.</p>
+                {/* MFA Status Messages */}
+                {mfaError && (
+                  <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 text-xs rounded-lg flex items-center gap-2">
+                    <AlertCircle size={14} /> {mfaError}
                   </div>
-                  <button
-                    onClick={() => setProfile({ ...profile, mfaEnabled: !profile.mfaEnabled })}
-                    className={`w-12 h-6 rounded-full transition-all relative ${profile.mfaEnabled ? "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]" : "bg-muted"}`}
-                  >
-                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${profile.mfaEnabled ? "left-7" : "left-1"}`} />
-                  </button>
-                </div>
-
-                {profile.mfaEnabled && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    className="p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-xl space-y-3"
-                  >
-                    <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">MFA Configuration Active</p>
-                    <div className="flex gap-4 items-center">
-                      <div className="w-20 h-20 bg-white p-1 rounded-lg">
-                        <div className="w-full h-full bg-[url('https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=CipherDropMFA')] bg-cover" />
-                      </div>
-                      <div className="flex-1 space-y-1">
-                        <p className="text-xs font-mono text-muted-foreground break-all">Secret: JBSWY3DPEHPK3PXP</p>
-                        <p className="text-[10px] text-muted-foreground">Scan this in Google Authenticator or Authy to complete setup.</p>
-                      </div>
-                    </div>
-                  </motion.div>
                 )}
+                {mfaSuccess && (
+                  <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs rounded-lg flex items-center gap-2">
+                    <CheckCircle2 size={14} /> {mfaSuccess}
+                  </div>
+                )}
+
+                <div className="p-4 bg-background/50 rounded-xl border border-white/5">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <p className="font-bold">Multi-Factor (MFA)</p>
+                      <p className="text-[10px] text-muted-foreground leading-tight">
+                        Use Google Authenticator or Authy for 2FA.
+                      </p>
+                    </div>
+                    <div className={`px-3 py-1 rounded-full text-[10px] font-bold ${profile.mfaEnabled ? "bg-emerald-500/20 text-emerald-500" : "bg-muted text-muted-foreground"}`}>
+                      {profile.mfaEnabled ? "ENABLED" : "DISABLED"}
+                    </div>
+                  </div>
+
+                  {/* MFA Not Enabled Yet */}
+                  {!profile.mfaEnabled && !mfaSetup && (
+                    <button
+                      onClick={startMfaSetup}
+                      disabled={mfaLoading}
+                      className="w-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 font-bold py-2 rounded-lg transition-all flex items-center justify-center gap-2 border border-emerald-500/20"
+                    >
+                      {mfaLoading ? <Loader2 size={16} className="animate-spin" /> : <Shield size={16} />}
+                      {mfaLoading ? "Loading..." : "Setup 2FA Now"}
+                    </button>
+                  )}
+
+                  {/* MFA Setup Flow - Show QR Code */}
+                  {!profile.mfaEnabled && mfaSetup && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      className="space-y-4"
+                    >
+                      <div className="flex gap-4 items-start">
+                        <div className="w-28 h-28 bg-white p-2 rounded-lg shrink-0">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(mfaSetup.otpauthUri)}`}
+                            alt="MFA QR Code"
+                            className="w-full h-full"
+                          />
+                        </div>
+                        <div className="flex-1 space-y-2">
+                          <p className="text-[10px] font-bold text-primary uppercase tracking-widest">Step 1: Scan QR Code</p>
+                          <p className="text-xs text-muted-foreground">
+                            Scan this QR code with Google Authenticator, Authy, or similar app.
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">Or enter manually:</p>
+                          <code className="block text-xs font-mono bg-background p-2 rounded border border-white/10 break-all select-all">
+                            {mfaSetup.secret}
+                          </code>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <p className="text-[10px] font-bold text-primary uppercase tracking-widest">Step 2: Verify Code</p>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            maxLength={6}
+                            placeholder="Enter 6-digit code"
+                            value={mfaCode}
+                            onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, ""))}
+                            className="flex-1 bg-background border border-white/10 rounded-lg px-4 py-2 text-center font-mono text-lg tracking-widest focus:ring-2 focus:ring-primary outline-none"
+                          />
+                          <button
+                            onClick={enableMfa}
+                            disabled={mfaLoading || mfaCode.length !== 6}
+                            className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-4 py-2 rounded-lg transition-all disabled:opacity-50 flex items-center gap-2"
+                          >
+                            {mfaLoading ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
+                            Enable
+                          </button>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => { setMfaSetup(null); setMfaCode(""); setMfaError(""); }}
+                        className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        Cancel Setup
+                      </button>
+                    </motion.div>
+                  )}
+
+                  {/* MFA Enabled - Show Disable Option */}
+                  {profile.mfaEnabled && (
+                    <motion.div
+                      initial={{ opacity: 0. }}
+                      animate={{ opacity: 1 }}
+                      className="space-y-3"
+                    >
+                      <p className="text-xs text-emerald-500 flex items-center gap-2">
+                        <CheckCircle2 size={14} />
+                        2FA is active. Your account is protected.
+                      </p>
+
+                      <div className="pt-3 border-t border-white/5">
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Disable MFA</p>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            maxLength={6}
+                            placeholder="Enter current 2FA code"
+                            value={mfaCode}
+                            onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, ""))}
+                            className="flex-1 bg-background border border-white/10 rounded-lg px-4 py-2 text-center font-mono tracking-widest focus:ring-2 focus:ring-red-500 outline-none"
+                          />
+                          <button
+                            onClick={disableMfa}
+                            disabled={mfaLoading || mfaCode.length !== 6}
+                            className="bg-red-500/10 hover:bg-red-500/20 text-red-500 font-bold px-4 py-2 rounded-lg transition-all disabled:opacity-50 border border-red-500/20"
+                          >
+                            {mfaLoading ? <Loader2 size={16} className="animate-spin" /> : "Disable"}
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
               </div>
 
               <button

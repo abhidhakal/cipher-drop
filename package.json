@@ -16,6 +16,7 @@
     "lucide-react": "^0.562.0",
     "nanoid": "^5.1.6",
     "next": "16.1.1",
+    "otpauth": "^9.4.1",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "stripe": "^20.2.0",
