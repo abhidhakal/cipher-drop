@@ -304,11 +304,11 @@ export default function ProfilePage() {
                       animate={{ opacity: 1, height: "auto" }}
                       className="space-y-4"
                     >
-                      <div className="flex gap-4 items-start">
-                        <div className="w-28 h-28 bg-white p-2 rounded-lg shrink-0">
+                      <div className="flex flex-col sm:flex-row gap-4 items-start">
+                        <div className="w-44 h-44 bg-white p-2 rounded-lg shrink-0 mx-auto sm:mx-0">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
-                            src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(mfaSetup.otpauthUri)}`}
+                            src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(mfaSetup.otpauthUri)}`}
                             alt="MFA QR Code"
                             className="w-full h-full"
                           />
@@ -327,19 +327,19 @@ export default function ProfilePage() {
 
                       <div className="space-y-2">
                         <p className="text-[10px] font-bold text-primary uppercase tracking-widest">Step 2: Verify Code</p>
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
                           <input
                             type="text"
                             maxLength={6}
-                            placeholder="Enter 6-digit code"
+                            placeholder="000000"
                             value={mfaCode}
                             onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, ""))}
-                            className="flex-1 bg-background border border-white/10 rounded-lg px-4 py-2 text-center font-mono text-lg tracking-widest focus:ring-2 focus:ring-primary outline-none"
+                            className="w-full sm:w-auto sm:flex-1 min-w-[140px] bg-background border border-white/10 rounded-lg px-4 py-3 text-center font-mono text-lg tracking-widest focus:ring-2 focus:ring-primary outline-none"
                           />
                           <button
                             onClick={enableMfa}
                             disabled={mfaLoading || mfaCode.length !== 6}
-                            className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-4 py-2 rounded-lg transition-all disabled:opacity-50 flex items-center gap-2"
+                            className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-6 py-3 rounded-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                           >
                             {mfaLoading ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
                             Enable
@@ -380,7 +380,7 @@ export default function ProfilePage() {
                             className="flex-1 bg-background border border-white/10 rounded-lg px-4 py-2 text-center font-mono tracking-widest focus:ring-2 focus:ring-red-500 outline-none"
                           />
                           <button
-                            onClick={disableMfa}
+                            onClick={() => disableMfa()}
                             disabled={mfaLoading || mfaCode.length !== 6}
                             className="bg-red-500/10 hover:bg-red-500/20 text-red-500 font-bold px-4 py-2 rounded-lg transition-all disabled:opacity-50 border border-red-500/20"
                           >

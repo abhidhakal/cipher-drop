@@ -166,19 +166,21 @@ export default async function Dashboard() {
 
 function DashboardCard({ title, value, icon, subtext, subtextColor, link }: { title: string, value: string, icon: React.ReactNode, subtext?: string, subtextColor?: string, link?: string }) {
   const content = (
-    <div className={`bg-card border border-white/5 p-6 rounded-2xl flex items-center justify-between shadow-xl transition-all ${link ? "hover:border-primary/50 cursor-pointer" : ""}`}>
-      <div>
-        <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest mb-2 opacity-50">{title}</p>
-        <div className="text-3xl font-black tracking-tighter">{value}</div>
-        {subtext && <p className={`text-[10px] font-bold mt-2 flex items-center gap-1 ${subtextColor || "text-emerald-500"}`}>
-          <Shield size={10} /> {subtext}
-        </p>}
+    <div className={`bg-card border border-white/5 p-6 rounded-2xl flex items-center justify-between shadow-xl transition-all h-full min-h-[120px] ${link ? "hover:border-primary/50 cursor-pointer" : ""}`}>
+      <div className="flex flex-col justify-between h-full">
+        <div>
+          <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest mb-2 opacity-50">{title}</p>
+          <div className="text-3xl font-black tracking-tighter">{value}</div>
+        </div>
+        <p className={`text-[10px] font-bold mt-2 flex items-center gap-1 ${subtext ? (subtextColor || "text-emerald-500") : "invisible"}`}>
+          <Shield size={10} /> {subtext || "placeholder"}
+        </p>
       </div>
-      <div className="p-4 bg-white/5 rounded-2xl border border-white/5">{icon}</div>
+      <div className="p-4 bg-white/5 rounded-2xl border border-white/5 shrink-0">{icon}</div>
     </div>
   );
 
-  if (link) return <Link href={link}>{content}</Link>;
+  if (link) return <Link href={link} className="block h-full">{content}</Link>;
   return content;
 }
 

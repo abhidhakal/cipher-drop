@@ -124,8 +124,16 @@ export async function DELETE(req: Request) {
     const { code } = await req.json();
 
     const user = await db.user.findUnique({ where: { id: session.userId } });
-    if (!user || !user.mfaSecret || !user.mfaEnabled) {
-      return NextResponse.json({ error: "MFA not enabled" }, { status: 400 });
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    if (!user.mfaEnabled || !user.mfaSecret) {
+      return NextResponse.json({ error: "MFA is not enabled" }, { status: 400 });
+    }
+
+    if (!code || code.length !== 6) {
+      return NextResponse.json({ error: "Please enter your 2FA code" }, { status: 400 });
     }
 
     // Verify the TOTP code before disabling
