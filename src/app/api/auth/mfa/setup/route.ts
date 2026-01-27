@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/auth";
 import * as OTPAuth from "otpauth";
 
 // GET: Get MFA setup info (generate new secret if needed)

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/auth";
 import { encryptData } from "@/lib/crypto";
 
 export async function POST(req: Request) {

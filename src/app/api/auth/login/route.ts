@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyPassword } from "@/lib/auth-utils";
-import { createSession } from "@/lib/session";
+import { createSession } from "@/lib/auth";
 import { checkRateLimit } from "@/lib/rate-limit";
 
 const MAX_ATTEMPTS = 5;
@@ -101,7 +101,7 @@ export async function POST(req: Request) {
     }
 
     // 6. Create Session
-    await createSession(user.id, user.role);
+    await createSession(user.id);
 
     // Audit Log for Success
     await db.auditLog.create({

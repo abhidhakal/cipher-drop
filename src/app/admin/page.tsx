@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { ShieldAlert, Users, Activity, Lock } from "lucide-react";
 import Link from "next/link";

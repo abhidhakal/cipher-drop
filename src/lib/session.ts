@@ -3,7 +3,6 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 // Security: Load JWT secret from environment variables
-// This prevents secrets from being exposed in source code or version control
 const secretKey = process.env.JWT_SECRET;
 
 if (!secretKey) {
@@ -27,30 +26,6 @@ export async function decrypt(input: string): Promise<any> {
   return payload;
 }
 
-export async function createSession(userId: string, role: string) {
-  const expires = new Date(Date.now() + 2 * 60 * 60 * 1000); // 2 hours
-  const session = await encrypt({ userId, role, expires });
-
-  // Save the session in a cookie
-  (await cookies()).set("session", session, {
-    expires,
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-  });
-}
-
-export async function getSession() {
-  const session = (await cookies()).get("session")?.value;
-  if (!session) return null;
-  try {
-    return await decrypt(session);
-  } catch (error) {
-    return null;
-  }
-}
-
 export async function updateSession(request: NextRequest) {
   const session = request.cookies.get("session")?.value;
   if (!session) return;
@@ -68,8 +43,4 @@ export async function updateSession(request: NextRequest) {
     sameSite: "lax",
   });
   return res;
-}
-
-export async function logout() {
-  (await cookies()).set("session", "", { expires: new Date(0) });
 }

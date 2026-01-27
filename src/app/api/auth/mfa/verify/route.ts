@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { createSession } from "@/lib/session";
+import { createSession } from "@/lib/auth";
 import * as OTPAuth from "otpauth";
 
 export async function POST(req: Request) {
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
     }
 
     // Success - create session
-    await createSession(user.id, user.role);
+    await createSession(user.id);
 
     // Audit Log
     await db.auditLog.create({

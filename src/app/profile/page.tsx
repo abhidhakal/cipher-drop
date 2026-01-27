@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { User, Shield, Key, Save, Lock, CheckCircle2, AlertCircle, Wallet, Plus, ArrowLeft, Loader2 } from "lucide-react";
+import { User, Shield, Key, Save, Lock, CheckCircle2, AlertCircle, Wallet, Plus, ArrowLeft, Loader2, Monitor, Smartphone, Globe, LogOut, Clock } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -19,6 +19,12 @@ export default function ProfilePage() {
   const [mfaLoading, setMfaLoading] = useState(false);
   const [mfaError, setMfaError] = useState("");
   const [mfaSuccess, setMfaSuccess] = useState("");
+
+  // Sessions State
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [sessionsLoading, setSessionsLoading] = useState(false);
+  const [sessionsError, setSessionsError] = useState("");
 
   // Password Change State
   const [pwData, setPwData] = useState({ currentPassword: "", newPassword: "", confirmNewPassword: "" });
@@ -149,6 +155,55 @@ export default function ProfilePage() {
       setMfaLoading(false);
     }
   };
+
+  // Session Management
+  const fetchSessions = async () => {
+    setSessionsLoading(true);
+    try {
+      const res = await fetch("/api/sessions");
+      const data = await res.json();
+      if (res.ok) {
+        setSessions(data.sessions);
+        setCurrentSessionId(data.currentSessionId);
+      }
+    } catch (err) {
+      console.error(err);
+      setSessionsError("Failed to load active sessions.");
+    } finally {
+      setSessionsLoading(false);
+    }
+  };
+
+  const revokeSession = async (id: string) => {
+    try {
+      const res = await fetch(`/api/sessions/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        fetchSessions();
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to revoke session");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error revoking session");
+    }
+  };
+
+  const revokeAllOthers = async () => {
+    if (!confirm("Are you sure you want to log out of all other devices?")) return;
+    try {
+      const res = await fetch("/api/sessions", { method: "DELETE" });
+      if (res.ok) {
+        fetchSessions();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchSessions();
+  }, []);
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -496,6 +551,82 @@ export default function ProfilePage() {
                   </li>
                 </ul>
               </div>
+            </div>
+
+            {/* Session Management (Security Feature) */}
+            <div className="bg-card border border-white/10 rounded-2xl p-8 shadow-xl">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  <Shield size={20} className="text-primary" />
+                  Active Sessions
+                </h2>
+                <button
+                  onClick={revokeAllOthers}
+                  className="text-[10px] text-red-500 hover:text-red-400 font-bold uppercase tracking-widest transition-colors flex items-center gap-1.5"
+                >
+                  <LogOut size={12} />
+                  Revoke All Others
+                </button>
+              </div>
+
+              {sessionsLoading ? (
+                <div className="flex justify-center py-8">
+                  <Loader2 className="animate-spin text-primary" />
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {sessions.length === 0 && (
+                    <p className="text-xs text-muted-foreground text-center py-4">No other active sessions found.</p>
+                  ) || sessions.map((s) => (
+                    <div
+                      key={s.id}
+                      className={`p-4 rounded-xl border transition-all ${s.id === currentSessionId ?
+                        "bg-primary/5 border-primary/20" : "bg-white/5 border-white/5"}`}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex gap-4">
+                          <div className={`p-2.5 rounded-lg ${s.id === currentSessionId ? "bg-primary/20 text-primary" : "bg-white/5 text-muted-foreground"}`}>
+                            {s.deviceName === "Mac" || s.deviceName === "Windows" ? <Monitor size={18} /> :
+                              s.deviceName === "iPhone" || s.deviceName === "Android" ? <Smartphone size={18} /> :
+                                <Globe size={18} />}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-bold">{s.deviceName || "Unknown Device"}</p>
+                              {s.id === currentSessionId && (
+                                <span className="text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                                  Current
+                                </span>
+                              )}
+                            </div>
+                            <div className="space-y-1 mt-1">
+                              <p className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+                                <Globe size={10} /> {s.ipAddress}
+                              </p>
+                              <p className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+                                <Clock size={10} /> Last active {new Date(s.lastActive).toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {s.id !== currentSessionId && (
+                          <button
+                            onClick={() => revokeSession(s.id)}
+                            className="p-2 hover:bg-red-500/10 text-muted-foreground hover:text-red-500 rounded-lg transition-all"
+                            title="Revoke Session"
+                          >
+                            <LogOut size={16} />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  <p className="text-[10px] text-muted-foreground italic mt-4">
+                    If you see a session you don't recognize, revoke it immediately and change your password.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 

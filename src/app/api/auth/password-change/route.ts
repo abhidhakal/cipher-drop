@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/auth";
 import { verifyPassword, hashPassword, UpdatePasswordSchema } from "@/lib/auth-utils";
 import { isPasswordReused, updatePasswordHistory } from "@/lib/password-policies";
 

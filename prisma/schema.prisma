@@ -32,6 +32,26 @@ model User {
   filesReceived   FileDrop[] @relation("Receiver")
   auditLogs       AuditLog[]
   passwordHistory PasswordHistory[]
+  sessions        Session[]
+}
+
+model Session {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  token       String   @unique  // Unique session identifier
+  ipAddress   String?
+  userAgent   String?  // Browser/device info
+  deviceName  String?  // Friendly device name (parsed from userAgent)
+  
+  lastActive  DateTime @default(now())
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime
+  revoked     Boolean  @default(false)
+
+  @@index([userId])
+  @@index([token])
 }
 
 model PasswordHistory {
@@ -75,3 +95,4 @@ model AuditLog {
   ipAddress       String?
   createdAt       DateTime  @default(now())
 }
+
