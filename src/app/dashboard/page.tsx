@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Shield, FileUp, Download, History, LogOut, Wallet, UserCircle, Settings } from "lucide-react";
+import LogoutButton from "@/components/LogoutButton";
 
 export const dynamic = "force-dynamic";
 
@@ -48,11 +49,7 @@ export default async function Dashboard() {
               <Link href="/profile" className="p-2 hover:bg-white/5 rounded-full transition-colors" title="Settings">
                 <Settings size={20} className="text-muted-foreground" />
               </Link>
-              <form action="/api/auth/logout" method="POST">
-                <button type="submit" className="p-2 hover:bg-red-500/10 rounded-full text-red-500/70 hover:text-red-500 transition-colors" title="Logout">
-                  <LogOut size={20} />
-                </button>
-              </form>
+              <LogoutButton />
             </div>
           </div>
         </div>

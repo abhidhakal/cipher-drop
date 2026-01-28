@@ -20,9 +20,7 @@ export async function isPasswordReused(userId: string, newPasswordPlain: string)
   return false;
 }
 
-/**
- * Updates the user's password history.
- */
+// Updates the user's password history.
 export async function updatePasswordHistory(userId: string, hashed: string) {
   await (db as any).passwordHistory.create({
     data: {

@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import NextLink from "next/link";
 import { Lock, Mail, AlertTriangle, Loader2 } from "lucide-react";
 import { useToast } from "@/components/Toast";
+import { getCsrfToken } from "@/lib/csrf";
 
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
@@ -67,7 +68,10 @@ export default function LoginPage() {
         // Handle MFA Verification
         const res = await fetch("/api/auth/mfa/verify", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "x-csrf-token": getCsrfToken() || "",
+          },
           body: JSON.stringify({ userId: tempUserId, code: mfaCode }),
         });
         const data = await res.json();
@@ -82,7 +86,10 @@ export default function LoginPage() {
 
       const res = await fetch("/api/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-csrf-token": getCsrfToken() || "",
+        },
         body: JSON.stringify({ ...formData, recaptchaToken }),
       });
 

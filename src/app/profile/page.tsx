@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useToast } from "@/components/Toast";
+import { getCsrfToken } from "@/lib/csrf";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -50,7 +51,10 @@ export default function ProfilePage() {
     try {
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-csrf-token": getCsrfToken() || "",
+        },
         body: JSON.stringify({ amount: 50.00 }) // Flat $50 for demo
       });
 
@@ -74,7 +78,10 @@ export default function ProfilePage() {
     try {
       await fetch("/api/profile", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-csrf-token": getCsrfToken() || "",
+        },
         body: JSON.stringify({ name: profile.name })
       });
       showToast("Profile updated successfully!", "success");
@@ -120,7 +127,10 @@ export default function ProfilePage() {
     try {
       const res = await fetch("/api/auth/mfa/setup", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-csrf-token": getCsrfToken() || "",
+        },
         body: JSON.stringify({ code: mfaCode })
       });
       const data = await res.json();
@@ -151,7 +161,10 @@ export default function ProfilePage() {
     try {
       const res = await fetch("/api/auth/mfa/setup", {
         method: "DELETE",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-csrf-token": getCsrfToken() || "",
+        },
         body: JSON.stringify({ code: mfaCode })
       });
       const data = await res.json();
@@ -187,7 +200,10 @@ export default function ProfilePage() {
 
   const revokeSession = async (id: string) => {
     try {
-      const res = await fetch(`/api/sessions/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/sessions/${id}`, {
+        method: "DELETE",
+        headers: { "x-csrf-token": getCsrfToken() || "" }
+      });
       if (res.ok) {
         fetchSessions();
         showToast("Session revoked", "success");
@@ -204,7 +220,10 @@ export default function ProfilePage() {
   const revokeAllOthers = async () => {
     if (!confirm("Are you sure you want to log out of all other devices?")) return;
     try {
-      const res = await fetch("/api/sessions", { method: "DELETE" });
+      const res = await fetch("/api/sessions", {
+        method: "DELETE",
+        headers: { "x-csrf-token": getCsrfToken() || "" }
+      });
       if (res.ok) {
         fetchSessions();
         showToast("All other sessions revoked", "success");
@@ -233,7 +252,10 @@ export default function ProfilePage() {
     try {
       const res = await fetch("/api/auth/password-change", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-csrf-token": getCsrfToken() || "",
+        },
         body: JSON.stringify(pwData)
       });
       const data = await res.json();
@@ -582,7 +604,7 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Session Management (Security Feature) */}
+            {/* Session Management*/}
             <div className="bg-card border border-white/10 rounded-2xl p-8 shadow-xl">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold flex items-center gap-2">

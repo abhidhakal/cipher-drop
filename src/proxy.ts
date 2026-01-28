@@ -34,6 +34,33 @@ const securityHeaders = {
 };
 
 export default async function proxy(request: NextRequest) {
+  // CSRF PROTECTION (Double Submit Cookie Pattern)
+  const response = NextResponse.next();
+
+  // 1. Generate CSRF token if missing
+  let csrfToken = request.cookies.get("csrf_token")?.value;
+  if (!csrfToken) {
+    csrfToken = crypto.randomUUID();
+    response.cookies.set("csrf_token", csrfToken, {
+      path: "/",
+      httpOnly: false, // JavaScript needs to read this to send the header
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
+  }
+
+  // 2. Validate CSRF token on mutating requests
+  const unsafeMethods = ["POST", "PUT", "DELETE", "PATCH"];
+  if (unsafeMethods.includes(request.method)) {
+    const headerToken = request.headers.get("x-csrf-token");
+    if (headerToken !== csrfToken) {
+      return new NextResponse(
+        JSON.stringify({ error: "Invalid CSRF Token" }),
+        { status: 403, headers: { "Content-Type": "application/json" } }
+      );
+    }
+  }
+
   const session = request.cookies.get("session")?.value;
   let parsedSession = null;
 
@@ -43,6 +70,21 @@ export default async function proxy(request: NextRequest) {
     } catch {
       // Invalid session
     }
+  }
+
+  // FORCE HTTPS REDIRECT (Security Policy)
+  // Check if we are in production and the request is not secure
+  const protocol = request.headers.get("x-forwarded-proto");
+  const host = request.headers.get("host");
+
+  // Skip for localhost development
+  const isLocalhost = host?.includes("localhost") || host?.includes("127.0.0.1");
+
+  if (protocol === "http" && !isLocalhost) {
+    return NextResponse.redirect(
+      `https://${host}${request.nextUrl.pathname}${request.nextUrl.search}`,
+      301
+    );
   }
 
   const isAuthPage = request.nextUrl.pathname.startsWith("/login") ||
@@ -56,24 +98,23 @@ export default async function proxy(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/admin");
 
   if (isProtected && !parsedSession) {
-    const response = NextResponse.redirect(new URL("/login", request.url));
+    const redirectResponse = NextResponse.redirect(new URL("/login", request.url));
     // Add security headers to redirect response
     Object.entries(securityHeaders).forEach(([key, value]) => {
-      response.headers.set(key, value);
+      redirectResponse.headers.set(key, value);
     });
-    return response;
+    return redirectResponse;
   }
 
   if (isAuthPage && parsedSession) {
-    const response = NextResponse.redirect(new URL("/dashboard", request.url));
+    const redirectResponse = NextResponse.redirect(new URL("/dashboard", request.url));
     Object.entries(securityHeaders).forEach(([key, value]) => {
-      response.headers.set(key, value);
+      redirectResponse.headers.set(key, value);
     });
-    return response;
+    return redirectResponse;
   }
 
   // Add security headers to all responses
-  const response = NextResponse.next();
   Object.entries(securityHeaders).forEach(([key, value]) => {
     response.headers.set(key, value);
   });

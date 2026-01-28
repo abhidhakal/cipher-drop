@@ -23,7 +23,7 @@ export const UpdatePasswordSchema = z.object({
 });
 
 export async function hashPassword(plainText: string): Promise<string> {
-  return await hash(plainText, 12); // High salt rounds for "security" demo
+  return await hash(plainText, 12);
 }
 
 export async function verifyPassword(

@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ShieldCheck, Lock, CreditCard, Unlock, FileText, Download, Wallet, ArrowLeft, Shield } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { getCsrfToken } from "@/lib/csrf";
 
 export default function DropPage() {
   const { id } = useParams();
@@ -35,6 +36,9 @@ export default function DropPage() {
     try {
       const res = await fetch(`/api/transfers/${id}/unlock`, {
         method: "POST",
+        headers: {
+          "x-csrf-token": getCsrfToken() || "",
+        },
       });
       const json = await res.json();
       if (res.ok) {

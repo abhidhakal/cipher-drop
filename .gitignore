@@ -45,3 +45,5 @@ next-env.d.ts
 # Coursework files (private)
 COURSEWORK.MD
 COURSEWORK_REPORT.md
+documentation.md
+documentation_sample.md

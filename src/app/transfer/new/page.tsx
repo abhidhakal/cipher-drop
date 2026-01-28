@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Shield, Lock, FileText, Upload, Check, Copy, ArrowRight, CreditCard } from "lucide-react";
 import Link from "next/link";
+import { getCsrfToken } from "@/lib/csrf";
 
 export default function NewTransferPage() {
   const router = useRouter();
@@ -38,7 +39,10 @@ export default function NewTransferPage() {
     try {
       const res = await fetch("/api/transfers", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-csrf-token": getCsrfToken() || "",
+        },
         body: JSON.stringify(formData),
       });
 

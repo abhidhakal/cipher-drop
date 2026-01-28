@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import NextLink from "next/link";
 import { Eye, EyeOff, CheckCircle2, XCircle, Mail, Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { getCsrfToken } from "@/lib/csrf";
 
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
@@ -86,7 +87,10 @@ export default function RegisterPage() {
 
       const res = await fetch("/api/auth/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-csrf-token": getCsrfToken() || "",
+        },
         body: JSON.stringify({ ...formData, recaptchaToken }),
       });
 
