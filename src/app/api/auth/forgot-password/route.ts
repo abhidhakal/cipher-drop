@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
+import { sendPasswordResetEmail } from "@/lib/mail";
 
 // Schema for input validation
 const forgotPasswordSchema = z.object({
@@ -35,12 +36,13 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // SIMULATE EMAIL SENDING
-    console.log("=========================================");
-    console.log(`[SIMULATED EMAIL] To: ${email}`);
-    console.log(`Subject: Reset your CipherDrop password`);
-    console.log(`Link: http://localhost:3000/reset-password?token=${resetToken}`);
-    console.log("=========================================");
+    // Send Real Email
+    try {
+      await sendPasswordResetEmail(email, resetToken);
+    } catch (mailError) {
+      console.error("Failed to send reset email:", mailError);
+      // In production, we might want to alert admins or retry
+    }
 
     return NextResponse.json({
       message: "If an account exists, a reset link has been sent.",
