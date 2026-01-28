@@ -1,10 +1,19 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { hashPassword, RegisterSchema } from "@/lib/auth-utils";
+import { verifyRecaptcha } from "@/lib/recaptcha";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+
+    // 0. CAPTCHA Verification (Policy: Bot Prevention)
+    const captchaResult = await verifyRecaptcha(body.recaptchaToken, "register");
+    if (!captchaResult.success) {
+      return NextResponse.json({
+        error: "CAPTCHA verification failed. Please try again."
+      }, { status: 403 });
+    }
 
     // 1. Zod Validation
     const result = RegisterSchema.safeParse(body);

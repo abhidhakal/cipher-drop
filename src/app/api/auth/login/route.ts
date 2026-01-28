@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { verifyPassword } from "@/lib/auth-utils";
 import { createSession } from "@/lib/auth";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { verifyRecaptcha } from "@/lib/recaptcha";
 
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes
@@ -11,13 +12,21 @@ export async function POST(req: Request) {
   const ip = req.headers.get("x-forwarded-for") || "unknown";
 
   // 0. Rate Limit Check (Policy: Prevent Automated Attacks)
-  const { success } = checkRateLimit(ip, 10, 60000); // 10 requests per minute per IP
+  const { success } = checkRateLimit(ip, 5, 60000); // 5 requests per minute per IP
   if (!success) {
     return NextResponse.json({ error: "Too many requests. Please try again later." }, { status: 429 });
   }
 
   try {
-    const { email, password } = await req.json();
+    const { email, password, recaptchaToken } = await req.json();
+
+    // 0.5 CAPTCHA Verification (Policy: Bot Prevention)
+    const captchaResult = await verifyRecaptcha(recaptchaToken, "login");
+    if (!captchaResult.success) {
+      return NextResponse.json({
+        error: "CAPTCHA verification failed. Please try again."
+      }, { status: 403 });
+    }
 
     const user = await db.user.findUnique({
       where: { email },

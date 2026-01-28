@@ -1,12 +1,21 @@
 "use client";
 
-import { useState } from "react";
-// Wait, I didn't install react-hook-form. I'll stick to controlled inputs.
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Link } from "lucide-react"; // Wait, "Link" is a component name conflict.
 import NextLink from "next/link";
 import { Eye, EyeOff, CheckCircle2, XCircle, Mail, Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
+
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+
+declare global {
+  interface Window {
+    grecaptcha: {
+      ready: (callback: () => void) => void;
+      execute: (siteKey: string, options: { action: string }) => Promise<string>;
+    };
+  }
+}
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -18,6 +27,35 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  // Load reCAPTCHA v3 script
+  useEffect(() => {
+    if (!RECAPTCHA_SITE_KEY) return;
+
+    const script = document.createElement("script");
+    script.src = `https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`;
+    script.async = true;
+    document.head.appendChild(script);
+
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, []);
+
+  const getRecaptchaToken = async (action: string): Promise<string | null> => {
+    if (!RECAPTCHA_SITE_KEY || !window.grecaptcha) return null;
+
+    return new Promise((resolve) => {
+      window.grecaptcha.ready(async () => {
+        try {
+          const token = await window.grecaptcha.execute(RECAPTCHA_SITE_KEY, { action });
+          resolve(token);
+        } catch {
+          resolve(null);
+        }
+      });
+    });
+  };
 
   // Password Strength Logic
   const getStrength = (pass: string) => {
@@ -43,10 +81,13 @@ export default function RegisterPage() {
     }
 
     try {
+      // Get reCAPTCHA token
+      const recaptchaToken = await getRecaptchaToken("register");
+
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, recaptchaToken }),
       });
 
       const data = await res.json();
