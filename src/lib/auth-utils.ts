@@ -1,8 +1,8 @@
 import { hash, compare } from "bcryptjs";
 import { z } from "zod";
 
-// Password policy regex: At least 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 symbol
-const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+// Password policy regex: At least 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$/;
 
 export const RegisterSchema = z.object({
   email: z.string().email("Invalid email address"),
