@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import NextLink from "next/link";
 import { Lock, Mail, AlertTriangle, Loader2 } from "lucide-react";
+import { useToast } from "@/components/Toast";
 
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
@@ -19,6 +20,7 @@ declare global {
 
 export default function LoginPage() {
   const router = useRouter();
+  const { showToast } = useToast();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [mfaRequired, setMfaRequired] = useState(false);
   const [mfaCode, setMfaCode] = useState("");
@@ -70,6 +72,7 @@ export default function LoginPage() {
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Invalid MFA code");
+        showToast("Captcha verified, login successful!", "success");
         router.push("/dashboard");
         return;
       }
@@ -95,6 +98,8 @@ export default function LoginPage() {
         return;
       }
 
+      showToast("Captcha verified, login successful!", "success");
+      showToast("Please enable MFA for better security", "warning");
       router.push("/dashboard");
     } catch (err: any) {
       setError(err.message);
