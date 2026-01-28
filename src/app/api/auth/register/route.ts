@@ -3,7 +3,17 @@ import { db } from "@/lib/db";
 import { hashPassword, RegisterSchema } from "@/lib/auth-utils";
 import { verifyRecaptcha } from "@/lib/recaptcha";
 
+import { checkRateLimit } from "@/lib/rate-limit";
+
 export async function POST(req: Request) {
+  const ip = req.headers.get("x-forwarded-for") || "unknown";
+
+  // Rate Limit: 5 attempts per minute (Registration Spam Prevention)
+  const limit = checkRateLimit(ip, 5, 60000);
+  if (!limit.success) {
+    return NextResponse.json({ error: "Too many registration attempts. Please try again later." }, { status: 429 });
+  }
+
   try {
     const body = await req.json();
 

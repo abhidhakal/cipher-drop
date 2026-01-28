@@ -11,10 +11,10 @@ const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes
 export async function POST(req: Request) {
   const ip = req.headers.get("x-forwarded-for") || "unknown";
 
-  // 0. Rate Limit Check (Policy: Prevent Automated Attacks)
-  const { success } = checkRateLimit(ip, 5, 60000); // 5 requests per minute per IP
-  if (!success) {
-    return NextResponse.json({ error: "Too many requests. Please try again later." }, { status: 429 });
+  // Rate Limit: 5 attempts per minute
+  const limit = checkRateLimit(ip, 5, 60000);
+  if (!limit.success) {
+    return NextResponse.json({ error: "Too many login attempts. Please try again later." }, { status: 429 });
   }
 
   try {

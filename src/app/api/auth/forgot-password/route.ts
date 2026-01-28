@@ -4,12 +4,22 @@ import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
 import { sendPasswordResetEmail } from "@/lib/mail";
 
+import { checkRateLimit } from "@/lib/rate-limit";
+
 // Schema for input validation
 const forgotPasswordSchema = z.object({
   email: z.string().email(),
 });
 
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get("x-forwarded-for") || "unknown";
+
+  // Rate Limit: 3 attempts per minute (Strict)
+  const limit = checkRateLimit(ip, 3, 60000);
+  if (!limit.success) {
+    return NextResponse.json({ error: "Too many requests. Please try again later." }, { status: 429 });
+  }
+
   try {
     const body = await req.json();
     const { email } = forgotPasswordSchema.parse(body);

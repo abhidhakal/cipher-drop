@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { z } from "zod";
 import { updatePasswordHistory } from "@/lib/password-policies";
 import { hashPassword } from "@/lib/auth-utils";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const resetPasswordSchema = z.object({
   token: z.string().min(1),
@@ -10,6 +11,14 @@ const resetPasswordSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get("x-forwarded-for") || "unknown";
+
+  // Rate Limit: 5 attempts per minute (Brute Force Protection)
+  const limit = checkRateLimit(ip, 5, 60000);
+  if (!limit.success) {
+    return NextResponse.json({ error: "Too many requests. Please try again later." }, { status: 429 });
+  }
+
   try {
     const body = await req.json();
     const { token, password } = resetPasswordSchema.parse(body);
