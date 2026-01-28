@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import NextLink from "next/link";
-import { Lock, Mail, AlertTriangle } from "lucide-react";
+import { Lock, Mail, AlertTriangle, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -96,7 +96,8 @@ export default function LoginPage() {
                   <input
                     type="email"
                     required
-                    className="w-full bg-background border border-border rounded-lg pl-10 pr-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
+                    disabled={loading}
+                    className="w-full bg-background border border-border rounded-lg pl-10 pr-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     placeholder="you@example.com"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -113,7 +114,8 @@ export default function LoginPage() {
                   <input
                     type="password"
                     required
-                    className="w-full bg-background border border-border rounded-lg pl-10 pr-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
+                    disabled={loading}
+                    className="w-full bg-background border border-border rounded-lg pl-10 pr-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     placeholder="••••••••"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -140,9 +142,16 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-lg transition-all shadow-lg disabled:opacity-50"
+            className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-lg transition-all shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            {loading ? "Decrypting..." : (mfaRequired ? "Verify & Unlock" : "Access Vault")}
+            {loading ? (
+              <>
+                <Loader2 size={20} className="animate-spin" />
+                {mfaRequired ? "Verifying..." : "Decrypting..."}
+              </>
+            ) : (
+              mfaRequired ? "Verify & Unlock" : "Access Vault"
+            )}
           </button>
         </form>
 
