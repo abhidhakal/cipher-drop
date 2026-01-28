@@ -23,7 +23,12 @@ model User {
   mfaEnabled      Boolean   @default(false)
   failedLoginAttempts Int   @default(0)
   lockedUntil     DateTime? 
+ 
   passwordLastChanged DateTime @default(now())
+
+  // Reset Password Fields
+  resetToken      String?   @unique
+  resetTokenExpiry DateTime?
   
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
