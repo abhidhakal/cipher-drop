@@ -5,9 +5,11 @@ import { User, Shield, Key, Save, Lock, CheckCircle2, AlertCircle, Wallet, Plus,
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { useToast } from "@/components/Toast";
 
 export default function ProfilePage() {
   const router = useRouter();
+  const { showToast } = useToast();
   const [profile, setProfile] = useState({ name: "", email: "", mfaEnabled: false, balance: 0 });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -30,6 +32,7 @@ export default function ProfilePage() {
   const [pwData, setPwData] = useState({ currentPassword: "", newPassword: "", confirmNewPassword: "" });
   const [pwError, setPwError] = useState("");
   const [pwSuccess, setPwSuccess] = useState(false);
+  const [pwLoading, setPwLoading] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -68,13 +71,19 @@ export default function ProfilePage() {
 
   const handleSaveProfile = async () => {
     setSaving(true);
-    await fetch("/api/profile", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: profile.name }) // Only save name, MFA is handled separately
-    });
-    setSaving(false);
-    router.refresh();
+    try {
+      await fetch("/api/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: profile.name })
+      });
+      showToast("Profile updated successfully!", "success");
+      router.refresh();
+    } catch {
+      showToast("Failed to update profile", "error");
+    } finally {
+      setSaving(false);
+    }
   };
 
   // Start MFA Setup - Get secret and QR code
@@ -121,8 +130,10 @@ export default function ProfilePage() {
       setProfile({ ...profile, mfaEnabled: true });
       setMfaSetup(null);
       setMfaCode("");
+      showToast("MFA enabled successfully!", "success");
     } catch (err: any) {
       setMfaError(err.message);
+      showToast(err.message, "error");
     } finally {
       setMfaLoading(false);
     }
@@ -179,13 +190,14 @@ export default function ProfilePage() {
       const res = await fetch(`/api/sessions/${id}`, { method: "DELETE" });
       if (res.ok) {
         fetchSessions();
+        showToast("Session revoked", "success");
       } else {
         const data = await res.json();
-        alert(data.error || "Failed to revoke session");
+        showToast(data.error || "Failed to revoke session", "error");
       }
     } catch (err) {
       console.error(err);
-      alert("Error revoking session");
+      showToast("Error revoking session", "error");
     }
   };
 
@@ -195,9 +207,11 @@ export default function ProfilePage() {
       const res = await fetch("/api/sessions", { method: "DELETE" });
       if (res.ok) {
         fetchSessions();
+        showToast("All other sessions revoked", "success");
       }
     } catch (err) {
       console.error(err);
+      showToast("Error revoking sessions", "error");
     }
   };
 
@@ -215,6 +229,7 @@ export default function ProfilePage() {
       return;
     }
 
+    setPwLoading(true);
     try {
       const res = await fetch("/api/auth/password-change", {
         method: "POST",
@@ -226,8 +241,12 @@ export default function ProfilePage() {
 
       setPwSuccess(true);
       setPwData({ currentPassword: "", newPassword: "", confirmNewPassword: "" });
+      showToast("Password changed successfully!", "success");
     } catch (err: any) {
       setPwError(err.message);
+      showToast(err.message, "error");
+    } finally {
+      setPwLoading(false);
     }
   };
 
@@ -533,10 +552,20 @@ export default function ProfilePage() {
 
                 <button
                   type="submit"
-                  className="w-full bg-white/5 hover:bg-white/10 text-foreground font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2 border border-white/5 cursor-pointer"
+                  disabled={pwLoading}
+                  className="w-full bg-white/5 hover:bg-white/10 text-foreground font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2 border border-white/5 cursor-pointer disabled:opacity-50"
                 >
-                  <Key size={18} />
-                  Change Secure Key
+                  {pwLoading ? (
+                    <>
+                      <Loader2 size={18} className="animate-spin" />
+                      Updating...
+                    </>
+                  ) : (
+                    <>
+                      <Key size={18} />
+                      Change Secure Key
+                    </>
+                  )}
                 </button>
               </form>
 
