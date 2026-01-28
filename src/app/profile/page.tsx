@@ -271,7 +271,7 @@ export default function ProfilePage() {
           <button
             onClick={handleTopup}
             disabled={addingFunds}
-            className="relative z-10 flex items-center gap-2 bg-white text-black px-6 py-3 rounded-xl font-bold hover:bg-white/90 transition-all active:scale-95 disabled:opacity-50"
+            className="relative z-10 flex items-center gap-2 bg-white text-black px-6 py-3 rounded-xl font-bold hover:bg-white/90 transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
           >
             <Plus size={18} />
             {addingFunds ? "Redirecting..." : "Add $50 via Stripe"}
@@ -533,7 +533,7 @@ export default function ProfilePage() {
 
                 <button
                   type="submit"
-                  className="w-full bg-white/5 hover:bg-white/10 text-foreground font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2 border border-white/5"
+                  className="w-full bg-white/5 hover:bg-white/10 text-foreground font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2 border border-white/5 cursor-pointer"
                 >
                   <Key size={18} />
                   Change Secure Key
