@@ -40,22 +40,27 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
           throw new Error(`Insufficient funds. Your balance: $${currentUser.balance.toFixed(2)}. Required: $${drop.price.toFixed(2)}`);
         }
 
-        // Deduct from buyer, Increment to sender
-        await tx.user.update({
+        // Deduct from buyer
+        const buyerUpdate = await tx.user.update({
           where: { id: currentUser.id },
           data: { balance: { decrement: drop.price } }
         });
 
-        await tx.user.update({
+        // Increment to sender
+        const senderUpdate = await tx.user.update({
           where: { id: drop.senderId },
           data: { balance: { increment: drop.price } }
         });
 
-        // Update status for this drop globally (if not oneTimeView)
-        // Actually, for this PoC, we mark it paid so the buyer can see it.
+        console.log(`[PAYMENT] ${drop.price} transferred from ${currentUser.email} (${buyerUpdate.balance}) to ${drop.sender.email} (${senderUpdate.balance})`);
+
+        // Update status for this drop globally & SET RECEIVER so it shows in their inbox
         await tx.fileDrop.update({
           where: { id },
-          data: { status: "PAID" }
+          data: {
+            status: "PAID",
+            receiverId: !drop.receiverId ? session.userId : undefined // logic: if generic drop, claim it. If private, keep it.
+          }
         });
 
         // Log the financial transaction

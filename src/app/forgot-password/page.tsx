@@ -115,9 +115,7 @@ export default function ForgotPasswordPage() {
             <p className="text-muted-foreground mb-6">
               We have sent a password reset link to <span className="text-foreground font-bold">{email}</span>.
             </p>
-            <p className="text-xs text-muted-foreground bg-white/5 p-4 rounded-xl border border-white/10 mb-6">
-              <strong className="text-amber-500">DEMO MODE:</strong> Since sending real email is disabled, please check your <strong>SERVER CONSOLE</strong> for the simulated link.
-            </p>
+
             <button
               onClick={() => setSent(false)}
               className="text-primary hover:underline text-sm font-bold"
